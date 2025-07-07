@@ -1,6 +1,7 @@
 import minescript
 from minescript import entities
 from minescript import player
+import os
 import time
 import sys
 import math
@@ -107,37 +108,57 @@ def lookAt(block, side="middle"): #makes player look at a side of the specified 
 def emptySlots(): #gets number of empty slots in player inventory
     return 36 - len(minescript.player_inventory())
 
+def goTo(x, y, z, params=[]): #uses baritone to travel to specified coordinates, after changing specified baritone settings
+    for param in params:
+        if param[0] == "#":
+            minescript.chat(param)
+    minescript.chat(f"#goto {x} {y} {z}")
+
 def main():
     state = "farm"
     while True:#main loop
         if state == "test":
-            if emptySlots() == 0:
-                minescript.execute("gamemode survival")
-            else:
-                minescript.echo(emptySlots())
-        if state == "farm":
+            entities = minescript.entities()
+            for entity in entities:
+                minescript.echo(entity.name)
+            break
+        elif state == "farm":
             coordList = coordRadius(3)
             blockList = minescript.getblocklist(coordList)
-            ripe = 0
-            #minescript.echo("crouching")
             tapSneak()
             for block in range(0, len(blockList)):
                 if getBlockType(blockList[block]) == "sweet_berry_bush" and int(blockAttr(blockList[block], "age")) == 3:
                     lookAt(coordList[block], "top")
-                    #minescript.echo(str(coordList[block]))
                     minescript.player_press_use(True)
+                    tapSneak()
+                    continue
                     # harvestBerry()
-                    #minescript.echo(f"found bush at {str(coordList[block])}")
-                    ripe += 1
                     #time.sleep(0.01)
             minescript.player_press_use(False)
-            minescript.echo(f"empty slots: {emptySlots()}")
             if emptySlots() <= 0:
                 minescript.execute("sell handall")
-            #minescript.echo(ripe)
+
+            #state = "done"
+        '''
+        elif state == "wardenwalk":
+            minescript.execute("warden")
+            goTo(3, 62, 1, ["#set maxFallHeightNoWater 10"])
+            state = "wardenwait"
             #state = "done"
 
-        if state == "done":
+        elif state == "wardenwait":
+            minescript.chat("#eta")
+            if
+
+
+        elif state == "wardenattack":
+            entities = minescript.entities()
+            for entity in entities:
+                if entity.name == "Warden":
+                    x, y, z = entity.position
+                    goTo(x, y, z)
+        '''
+        elif state == "done":
             break
 
 main()
