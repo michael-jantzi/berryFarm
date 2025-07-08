@@ -110,11 +110,31 @@ def emptySlots(): #gets number of empty slots in player inventory
 
 def goTo(x, y, z, params=[]): #uses baritone to travel to specified coordinates, after changing specified baritone settings
     for param in params:
+        minescript.echo(param)
         if param[0] == "#":
             minescript.chat(param)
     minescript.chat(f"#goto {x} {y} {z}")
 
+# Global variable to store the most recent chat message
+_recentChat = ""
+
+def _on_chat_message(event):
+    global _recentChat
+    _recentChat = event["message"]
+
+def get_last_chat_message():
+    """Returns the most recent chat message, or None if none received yet."""
+    return _recentChat
+
+# Register the chat event handler at import time
+try:
+    minescript.event.on_chat_message(_on_chat_message)
+except Exception:
+    pass
+
+state = ""
 def main():
+    global state
     state = "farm"
     while True:#main loop
         if state == "test":
@@ -137,28 +157,32 @@ def main():
             minescript.player_press_use(False)
             if emptySlots() <= 0:
                 minescript.execute("sell handall")
-
+            if _recentChat.find("reaction") != -1:
+                minescript.echo("reaction time!!!!")
             #state = "done"
-        '''
+        
         elif state == "wardenwalk":
             minescript.execute("warden")
+            time.sleep(0.01)
             goTo(3, 62, 1, ["#set maxFallHeightNoWater 10"])
             state = "wardenwait"
             #state = "done"
-
+        
         elif state == "wardenwait":
-            minescript.chat("#eta")
-            if
-
-
+            currBlock = getBlock()
+            minescript.echo(currBlock)
+            if currBlock == (3, 62, 1):
+                state = "wardenattack"
         elif state == "wardenattack":
+            minescript.echo("its time to attack")
             entities = minescript.entities()
             for entity in entities:
                 if entity.name == "Warden":
                     x, y, z = entity.position
                     goTo(x, y, z)
-        '''
+
         elif state == "done":
             break
-
-main()
+         
+if __name__ == "__main__":
+    main()
